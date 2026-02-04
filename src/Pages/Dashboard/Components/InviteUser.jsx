@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import api from "../../../api/client";
 
 const InviteUser = () => {
   const {
@@ -16,11 +16,7 @@ const InviteUser = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/v1/invite/create-invite",
-        data,
-        { withCredentials: true }
-      );
+      const res = await api.post("/invite/create-invite", data);
 
       alert(res.data.message || "Invitation sent successfully!");
       reset();

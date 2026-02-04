@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import api from "../../api/client";
 
 const Login = () => {
   const {
@@ -11,7 +11,7 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/v1/auth/login", {
+      const res = await api.post("/auth/login", {
         email: data.email,
         password: data.password,
       });
