@@ -1,51 +1,48 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import api from "../../../api/client";
 import EditProject from "./EditProject";
 
-const initialProjects = [
-  {
-    id: 1,
-    name: "Dashboard Redesign",
-    description: "Redesign admin dashboard UI admin dashboard UI admin dashboard UI admin dashboard UI admin dashboard UI",
-    createdBy: "Andrew Mike",
-    status: "Active",
-    isDeleted: "No",
-  },
-  {
-    id: 2,
-    name: "Mobile App",
-    description: "Customer mobile application",
-    createdBy: "John Doe",
-    status: "Inactive",
-    isDeleted: "No",
-  },
-  {
-    id: 3,
-    name: "API Refactor",
-    description: "Improve backend performance",
-    createdBy: "Admin",
-    status: "Inactive",
-    isDeleted: "Yes",
-  },
-];
-
 const ProjectList = () => {
-  const [projects, setProjects] = useState(initialProjects);
+  const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/api/v1/project/get-all-projects");
+        setProjects(res.data?.data?.data || []);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to load projects");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const handleSave = (updatedProject) => {
     setProjects((prev) =>
-      prev.map((p) =>
-        p.id === updatedProject.id ? updatedProject : p
-      )
+      prev.map((p) => (p._id === updatedProject._id ? updatedProject : p)),
     );
     setSelectedProject(null);
   };
 
-  const truncateWords = (text, limit = 5) => {
-  const words = text.split(" ");
-  if (words.length <= limit) return text;
-  return words.slice(0, limit).join(" ") + "...";
-};
+  const truncateWords = (text = "", limit = 8) => {
+    const words = text.split(" ");
+    if (words.length <= limit) return text;
+    return words.slice(0, limit).join(" ") + "...";
+  };
+
+  if (loading)
+    return (
+      <div className="p-6 text-center text-TextGray">Loading projects...</div>
+    );
+
+  if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
 
   return (
     <div className="bg-BGWhite rounded-lg relative">
@@ -57,18 +54,21 @@ const ProjectList = () => {
             <th>Created By</th>
             <th>Status</th>
             <th>Deleted</th>
-            <th>Button</th>
+            <th>Action</th>
           </tr>
         </thead>
 
         <tbody>
           {projects.map((project) => (
-            <tr key={project.id} className="border-b border-GrayBorder text-TextBlack last:border-none">
+            <tr
+              key={project._id}
+              className="border-b border-GrayBorder text-TextBlack last:border-none"
+            >
               <td className="py-2">{project.name}</td>
               <td>{truncateWords(project.description)}</td>
-              <td>{project.createdBy}</td>
+              <td>{project.createdBy?.name}</td>
               <td>{project.status}</td>
-              <td>{project.isDeleted}</td>
+              <td>{project.isDeleted ? "Yes" : "No"}</td>
               <td>
                 <button
                   onClick={() => setSelectedProject(project)}
@@ -82,7 +82,6 @@ const ProjectList = () => {
         </tbody>
       </table>
 
-      {/* Edit Project Modal */}
       {selectedProject && (
         <EditProject
           project={selectedProject}

@@ -6,6 +6,7 @@ import Dashboard from "./Pages/Dashboard/Dashboard";
 import UserList from "./Pages/Dashboard/Components/UserList";
 import ProjectList from "./Pages/Dashboard/Components/ProjectList";
 import InviteUser from "./Pages/Dashboard/Components/InviteUser";
+import CreateProject from "./Pages/Dashboard/Components/CreateProject";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route path="users" element={<UserList />} />
           <Route path="projects" element={<ProjectList />} />
           <Route path="invite-user" element={<InviteUser />} />
+          <Route path="create-project" element={<CreateProject />} />
         </Route>
       </Routes>
     </BrowserRouter>

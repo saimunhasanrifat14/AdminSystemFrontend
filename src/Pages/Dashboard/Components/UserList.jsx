@@ -1,43 +1,46 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import api from "../../../api/client";
 import EditUser from "./EditUser";
 
-const initialUsers = [
-  {
-    id: 1,
-    name: "Andrew Mike",
-    email: "andrew@gmail.com",
-    date: "04/10/2014",
-    role: "Admin",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "John Doe",
-    email: "john@gmail.com",
-    date: "06/09/2015",
-    role: "Manager",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Micheal Holz",
-    email: "micheal@gmail.com",
-    date: "09/05/2016",
-    role: "Publisher",
-    status: "Inactive",
-  },
-];
-
 const UserList = () => {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // fetch users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/api/v1/auth/users");
+        setUsers(res.data?.data || []);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to load users");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleSave = (updatedUser) => {
     setUsers((prev) =>
-      prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)),
+      prev.map((u) => (u._id === updatedUser._id ? updatedUser : u))
     );
     setSelectedUser(null);
   };
+
+  if (loading)
+    return (
+      <div className="p-6 text-center text-TextGray">Loading users...</div>
+    );
+
+  if (error)
+    return (
+      <div className="p-6 text-center text-red-500">{error}</div>
+    );
 
   return (
     <div className="bg-BGWhite rounded-lg relative">
@@ -46,21 +49,22 @@ const UserList = () => {
           <tr className="border-b text-left text-TextGray">
             <th>Name</th>
             <th>Email</th>
-            <th>Date Created</th>
             <th>Role</th>
             <th>Status</th>
-            <th>Button</th>
+            <th>Action</th>
           </tr>
         </thead>
 
         <tbody>
           {users.map((user) => (
-            <tr key={user.id} className="border-b border-GrayBorder text-TextBlack last:border-none">
+            <tr
+              key={user._id}
+              className="border-b border-GrayBorder text-TextBlack last:border-none"
+            >
               <td className="py-2">{user.name}</td>
               <td>{user.email}</td>
-              <td>{user.date}</td>
               <td>{user.role}</td>
-              <td>{user.status}</td>
+              <td>{user.status || "Active"}</td>
               <td>
                 <button
                   onClick={() => setSelectedUser(user)}
@@ -74,7 +78,6 @@ const UserList = () => {
         </tbody>
       </table>
 
-      {/* Edit User Modal */}
       {selectedUser && (
         <EditUser
           user={selectedUser}

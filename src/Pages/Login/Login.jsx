@@ -1,8 +1,10 @@
 import React from 'react';
 import {useForm} from 'react-hook-form';
 import api from '../../api/client';
+import {useNavigate} from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -15,6 +17,10 @@ const Login = () => {
         email: data.email,
         password: data.password,
       });
+
+      if (res.data?.success) {
+        navigate('/');
+      }
 
       console.log(res.data.user);
       alert('Login successful!');

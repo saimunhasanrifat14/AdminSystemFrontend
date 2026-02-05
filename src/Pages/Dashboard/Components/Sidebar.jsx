@@ -24,6 +24,9 @@ const Sidebar = () => {
         <NavLink to="/invite-user" className={linkClass}>
           Invite User
         </NavLink>
+        <NavLink to="/create-project" className={linkClass}>
+          Create Project
+        </NavLink>
       </nav>
     </div>
   );
