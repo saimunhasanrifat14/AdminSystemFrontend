@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../api/client";
 import EditUser from "./EditUser";
+import { useAuth } from "../../../Context/AuthContext";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
   // fetch users
   useEffect(() => {
@@ -25,22 +28,21 @@ const UserList = () => {
     fetchUsers();
   }, []);
 
+  // handle save user
   const handleSave = (updatedUser) => {
     setUsers((prev) =>
-      prev.map((u) => (u._id === updatedUser._id ? updatedUser : u))
+      prev.map((u) => (u._id === updatedUser._id ? updatedUser : u)),
     );
     setSelectedUser(null);
   };
-
+  
+  // show loading state
   if (loading)
     return (
       <div className="p-6 text-center text-TextGray">Loading users...</div>
     );
 
-  if (error)
-    return (
-      <div className="p-6 text-center text-red-500">{error}</div>
-    );
+  if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
 
   return (
     <div className="bg-BGWhite rounded-lg relative">
@@ -51,7 +53,7 @@ const UserList = () => {
             <th>Email</th>
             <th>Role</th>
             <th>Status</th>
-            <th>Action</th>
+            {isAdmin && <th>Action</th>}
           </tr>
         </thead>
 
@@ -66,18 +68,19 @@ const UserList = () => {
               <td>{user.role}</td>
               <td>{user.status || "Active"}</td>
               <td>
-                <button
-                  onClick={() => setSelectedUser(user)}
-                  className="text-blue-600 hover:underline cursor-pointer"
-                >
-                  Edit
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => setSelectedUser(user)}
+                    className="text-blue-600 hover:underline cursor-pointer"
+                  >
+                    Edit
+                  </button>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
       {selectedUser && (
         <EditUser
           user={selectedUser}

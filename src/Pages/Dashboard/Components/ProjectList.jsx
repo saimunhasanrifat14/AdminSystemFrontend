@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../api/client";
 import EditProject from "./EditProject";
+import { useAuth } from "../../../Context/AuthContext";
 
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
@@ -8,6 +9,10 @@ const ProjectList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
+  // fetch projects
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -24,6 +29,7 @@ const ProjectList = () => {
     fetchProjects();
   }, []);
 
+  // handle save updated project
   const handleSave = (updatedProject) => {
     setProjects((prev) =>
       prev.map((p) => (p._id === updatedProject._id ? updatedProject : p)),
@@ -31,17 +37,20 @@ const ProjectList = () => {
     setSelectedProject(null);
   };
 
+  // truncate words
   const truncateWords = (text = "", limit = 8) => {
     const words = text.split(" ");
     if (words.length <= limit) return text;
     return words.slice(0, limit).join(" ") + "...";
   };
 
+  // show loading
   if (loading)
     return (
       <div className="p-6 text-center text-TextGray">Loading projects...</div>
     );
 
+  // show error
   if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
 
   return (
@@ -54,7 +63,7 @@ const ProjectList = () => {
             <th>Created By</th>
             <th>Status</th>
             <th>Deleted</th>
-            <th>Action</th>
+            {isAdmin && <th>Action</th>}
           </tr>
         </thead>
 
@@ -69,14 +78,14 @@ const ProjectList = () => {
               <td>{project.createdBy?.name}</td>
               <td>{project.status}</td>
               <td>{project.isDeleted ? "Yes" : "No"}</td>
-              <td>
+              {isAdmin && <td>
                 <button
                   onClick={() => setSelectedProject(project)}
                   className="text-blue-600 hover:underline"
                 >
                   Edit
                 </button>
-              </td>
+              </td>}
             </tr>
           ))}
         </tbody>

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
-import Navbar from "../../CommonComponents/Navber";
+
 
 const Dashboard = () => {
   return (
@@ -19,3 +19,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

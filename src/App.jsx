@@ -7,6 +7,7 @@ import UserList from "./Pages/Dashboard/Components/UserList";
 import ProjectList from "./Pages/Dashboard/Components/ProjectList";
 import InviteUser from "./Pages/Dashboard/Components/InviteUser";
 import CreateProject from "./Pages/Dashboard/Components/CreateProject";
+import ProtectedRoute from "./CommonComponents/ProtectedRoute";
 
 const App = () => {
   return (
@@ -18,7 +19,9 @@ const App = () => {
           <Route index element={<Navigate to="users" />} />
           <Route path="users" element={<UserList />} />
           <Route path="projects" element={<ProjectList />} />
-          <Route path="invite-user" element={<InviteUser />} />
+          <Route element={<ProtectedRoute roles={["ADMIN"]} />}>
+            <Route path="invite-user" element={<InviteUser />} />
+          </Route>
           <Route path="create-project" element={<CreateProject />} />
         </Route>
       </Routes>
